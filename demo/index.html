@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Demo</title>
+    <script src="js/xml-for-cocoonjs.js"></script>
+    <script type="text/javascript">
+      //Normally, including the library sets window['DOMParser'] for CocoonJS
+      // Here, we are making sure it overrides for all user agents for demo purposes
+      window['DOMParser'] = domParser;
+
+      function reqListener() {
+        var tmp = new DOMParser();
+        var xml = tmp.parseFromString(this.responseText, "text/xml");
+        //Do something with xml
+      }
+
+      var XHR = new XMLHttpRequest();
+      XHR.onload = reqListener;
+      XHR.open("GET", "desyrel.xml", true);
+      XHR.send();
+    </script>
+  </head>
+  <body>
+    View Source to see the code.
+  </body>
+</html>
