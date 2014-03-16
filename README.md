@@ -20,10 +20,12 @@ are JavaScript OBJECTS, not their corresponding object names in the specificatio
 * Will never throw "NO_MODIFICATION_ALLOWED_ERR," as all nodes can be edited at any time.
 * appendChild(node) does not currently work with DocumentFragment nodes. Will not load DocumentFragment's children into the tree correctly.
 * insertBefore(), removeChild(), replaceChild(), and cloneNode() are not currently implemented.
+* Text nodes do not have the splitText() function (as this depends on insertBefore())
 
 ##TODO
 * Implement check for DocumentFragment nodes in appendChild, add its children to tree
 * Implement insertBefore(), removeChild(), replaceChild(), and cloneNode()
+* Add splitText() to Text nodes
 * Support DOM Core Level 2
 * Support namespace-related operations
 
