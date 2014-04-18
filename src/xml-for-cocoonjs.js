@@ -2055,6 +2055,7 @@
       }
     };
 
+    XmlElement.prototype = Object.create(XmlElement.prototype);
     XmlElement.prototype.constructor = XmlElement;
 
     /**
@@ -2115,6 +2116,22 @@
       }
     });
 
+    /**
+     * The tagName of the XmlElement
+     *
+     * @property tagName
+     * @type String
+     * @default ""
+     */
+    Object.defineProperty(XmlElement.prototype, "tagName", {
+      get: function() {
+        return this.name;
+      },
+      set: function(name) {
+        this.name = name;
+      }
+    });
+
     /*
      * Delegates is the tag stack used by the SAX Parser itself via calls from XmlDocument
      */
@@ -2126,11 +2143,8 @@
      */
     function XmlDocument(xml) {
 
-      this.children = [];
       this.attributes = null;
       this.implementation = new DOMImplementation();
-      this.firstChild = null;
-      this.lastChild = null;
 
       if (xml)
       {
@@ -2168,18 +2182,21 @@
        */
       _opentag: function(tag) {
 
-        if (this.children.length < 1)
+        if (typeof this.documentElement === 'undefined')
         {
-          tag.ownerDocument = null;
-          tag.name = "#document";
-          tag.nodeType = 9;
-          tag.val = null;
-          XmlElement.call(this, tag);
+          this.ownerDocument = null;
+          this.name = "#document";
+          this.nodeType = 9;
+          this.val = null;
+          this.documentElement = new XmlElement(tag);
+          this.firstChild = this.documentElement;
+          this.lastChild = this.documentElement;
+          this.parentNode = null;
         }
         else
         {
           tag.ownerDocument = this;
-          XmlElement.prototype._opentag.apply(this, arguments);
+          XmlElement.prototype._opentag.apply(this.documentElement, arguments);
         }
       },
       /**
@@ -2190,6 +2207,7 @@
        */
       _closetag: function() {
         delegates.shift();
+        this.children = [this.documentElement];
       },
       /**
        * Creates and pushes a new Text node to the children array
@@ -2389,6 +2407,7 @@
       }
     };
 
+    XmlDocument.prototype = Object.create(XmlDocument.prototype);
     XmlDocument.prototype.constructor = XmlDocument;
 
     /**
@@ -2431,20 +2450,18 @@
     });
 
     /**
-     * The documentElement of the XmlDocument
+     * The tagName of the XmlDocument
      *
-     * @property documentElement
-     * @type XmlElement | null
-     * @default false
+     * @property tagName
+     * @type String
+     * @default ""
      */
-    Object.defineProperty(XmlDocument.prototype, "documentElement", {
+    Object.defineProperty(XmlDocument.prototype, "tagName", {
       get: function() {
-        for (var i = 0; i < this.children.length; i += 1) {
-          if (this.children[i].nodeType === 1) {
-            return this.children[i];
-          }
-        }
-        return null;
+        return this.name;
+      },
+      set: function(n) {
+        this.name = n;
       }
     });
 
@@ -2463,6 +2480,7 @@
       this.nodeType = 2;
     }
 
+    Attr.prototype = Object.create(Attr.prototype);
     Attr.prototype.constructor = Attr;
 
     /**
@@ -2509,6 +2527,7 @@
       this.nodeType = 3;
     }
 
+    Text.prototype = Object.create(Text.prototype);
     Text.prototype.constructor = Text;
 
     /**
@@ -2555,6 +2574,7 @@
       this.nodeType = 8;
     }
 
+    Comment.prototype = Object.create(Comment.prototype);
     Comment.prototype.constructor = Comment;
 
     /**
@@ -2601,6 +2621,7 @@
       this.nodeType = 4;
     }
 
+    CDATA.prototype = Object.create(CDATA.prototype);
     CDATA.prototype.constructor = CDATA;
 
     /**
@@ -2648,6 +2669,7 @@
       }
     }
 
+    ProcessingInstruction.prototype = Object.create(ProcessingInstruction.prototype);
     ProcessingInstruction.prototype.constructor = ProcessingInstruction;
 
     /**
@@ -2686,6 +2708,7 @@
       XmlDocument.call(this);
     }
 
+    DocumentFragment.prototype = Object.create(DocumentFragment.prototype);
     DocumentFragment.prototype.constructor = XmlDocument;
 
     /**
@@ -2742,6 +2765,7 @@
       }
     };
 
+    DOMImplementation.prototype = Object.create(DOMImplementation.prototype);
     DOMImplementation.prototype.constructor = DOMImplementation;
 
     /**
