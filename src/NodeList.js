@@ -1,18 +1,10 @@
 /**
  * @namespace NodeList
- */
-
-/**
  * @class NodeList
  */
-
 function NodeList()
 {
-    this.length = 0;
-    this.nodes = [];
-}
-
-NodeList.prototype = {
+    this.nodes = new Array();
     /**
      * Returns an item (node) from the list
      * @method NodeList.item
@@ -20,19 +12,13 @@ NodeList.prototype = {
      * @returns {Node}
      * @public
      */
-    item: function(index)
-    {
-        if (index < this.length) {
-            return this.nodes[index];
+    this.nodes.item = function(index) {
+        if (index < this.length && index > -1) {
+            return this[index];
         }
-    }
-};
+    };
+    return this.nodes;
+}
 
 NodeList.prototype = Object.create(NodeList.prototype);
 NodeList.prototype.constructor = NodeList;
-
-Object.defineProperty(NodeList.prototype, 'length', {
-    get: function() {
-        return this.nodes.length;
-    }
-});

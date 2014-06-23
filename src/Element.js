@@ -1,43 +1,42 @@
 /**
+ * @namespace Element
  * @class Element
  * @param tag An object containing as its own properties those to be applied to Element 
  */
 
 function Element(tag) {
 
+    Node.call(this);
     this.nodeType = 1;
-    this.val = "";
-    this.children = [];
-    this.firstChild = null;
-    this.lastChild = null;
+    this.nodeValue = null;
 
     if (tag) {
 
         if (tag.hasOwnProperty('name')) {
-            this.name = tag.name;
-        }
-
-        if (tag.hasOwnProperty('ownerDocument')) {
-            this.ownerDocument = tag.ownerDocument;
+            this.nodeName = tag.name;
         }
 
         if (tag.hasOwnProperty('parentNode')) {
             this.parentNode = tag.parentNode;
         }
 
-        if (tag.hasOwnProperty('parentNode')) {
-            if (tag.parentNode !== null && tag.parentNode.nodeType === 1)
-            {
-                this.parentElement = tag.parentNode;
+        if (tag.hasOwnProperty('attributes')) {
+            for (var prop in tag.attributes) {
+                if (tag.attributes.hasOwnProperty(prop)) {
+                    if (this.attributes === null) {
+                        this.attributes = new NamedNodeMap();
+                    }
+                    this.attributes.setNamedItem(prop);
+                }
             }
         }
 
-        if (tag.hasOwnProperty('nodeType')) {
-            this.nodeType = tag.nodeType;
+        if (tag.hasOwnProperty('namespaceURI')) {
+            this.namespaceURI = tag.namespaceURI;
         }
-
-        if (tag.hasOwnProperty('attributes')) {
-            this.attr = tag.attributes;
+        
+        if (tag.hasOwnProperty('localName')) {
+            this.localName = tag.localName;
         }
     }
 
@@ -53,18 +52,9 @@ Element.prototype = {
      * @private
      */
     _opentag: function(tag) {
-
         var child = new Element(tag);
-
         child.parentNode = this;
-        this.children.push(child);
-
-        if (this.firstChild === null)
-        {
-            this.firstChild = child;
-        }
-        this.lastChild = child;
-
+        this.childNodes.push(child);
         delegates.unshift(child);
     },
     /**
@@ -77,7 +67,7 @@ Element.prototype = {
         delegates.shift();
     },
     /**
-     * Creates and pushes a new Text node to the children array
+     * Creates and pushes a new Text node to the childNodes array
      * Will not accept text that is purely whitespace only
      * @method Element._text
      * @param {string} text The text to be used for creation of a Text node
@@ -87,21 +77,14 @@ Element.prototype = {
         if (text)
         {
             if (/[^\s]/.test(text)) {
-
-                var child = new Text(text, this);
-
-                this.children.push(child);
-
-                if (this.firstChild === null)
-                {
-                    this.firstChild = child;
-                }
-                this.lastChild = child;
+                var child = new Text(text);
+                child.parentNode = this;
+                this.childNodes.push(child);
             }
         }
     },
     /**
-     * Creates and pushes a new Comment node to the children array
+     * Creates and pushes a new Comment node to the childNodes array
      * @method Element._comment
      * @param {string} text The text to be used for creation of a Comment node
      * @private
@@ -109,20 +92,13 @@ Element.prototype = {
     _comment: function(text) {
         if (text)
         {
-            var child = new Comment(text, this);
-
-            this.children.push(child);
-
-            if (this.firstChild === null)
-            {
-                this.firstChild = child;
-            }
-            this.lastChild = child;
-
+            var child = new Comment(text);
+            child.parentNode = this;
+            this.childNodes.push(child);
         }
     },
     /**
-     * Creates and pushes a new ProcessingInstruction node to the children array
+     * Creates and pushes a new ProcessingInstruction node to the childNodes array
      * @method Element._processingInstruction
      * @param {string} text The text to be used for creation of a ProcessingInstruction node
      * @private
@@ -130,19 +106,13 @@ Element.prototype = {
     _processingInstruction: function(text) {
         if (text)
         {
-            var child = new ProcessingInstruction(text, this);
-
-            this.children.push(child);
-
-            if (this.firstChild === null)
-            {
-                this.firstChild = child;
-            }
-            this.lastChild = child;
+            var child = new ProcessingInstruction(text);
+            child.parentNode = this;
+            this.childNodes.push(child);
         }
     },
     /**
-     * Creates and pushes a new CDATA node to the children array
+     * Creates and pushes a new CDATA node to the childNodes array
      * @method Element._cdata
      * @param {string} cdata The text to be used for creation of a CDATA node
      * @private
@@ -150,124 +120,95 @@ Element.prototype = {
     _cdata: function(cdata) {
         if (cdata)
         {
-            var child = new CDATA(cdata, this);
-
-            this.children.push(child);
-
-            if (this.firstChild === null)
-            {
-                this.firstChild = child;
-            }
-            this.lastChild = child;
+            var child = new CDATA(cdata);
+            child.parentNode = this;
+            this.childNodes.push(child);
         }
     },
     /**
-     * Retrieves an array matching the name specified.
-     * Will return all children with "*"
-     * @method Element.getElementsByTagName
-     * @param {string} name The tag name to search for
-     * @returns {Array} An array containing any matches
+     * Adds the node newChild to the end of the list of children of this node. 
+     *  If the newChild is already in the tree, it is first removed.
+     * @method Node.appendChild
+     * @param {Node | DocumentFragment} node  The node to add
+     * @returns {Node} The node added
      * @public
      */
-    getElementsByTagName: function(name) {
-        var results = [];
-        var r;
-
-        for (var i = 0; i < this.children.length; i += 1) {
-            if (this.children[i].name === name || name === "*") {
-                results.push(this.children[i]);
-            }
-            if (!!this.children[i].children && this.children[i].children.length > 0) {
-                if ((r = this.children[i].getElementsByTagName(name))) {
-                    results = results.concat(r);
-                }
-            }
-        }
-        return results;
+    appendChild: function(node) {
+        return Node.prototype.appendChild.call(this, node);
     },
     /**
-     * Retrieves an array matching the attribute of name specified.
-     * @method Element.getElementsByName
-     * @param {string} name The attribute of name to search for
-     * @returns {Array} An array containing any matches
-     * @public
+     * Removes the child node indicated by oldChild from the list of children, and returns it. 
+     * @param {Node} oldChild The node being removed.
+     * @returns {Node} The node removed.
      */
-    getElementsByName: function(name) {
-        var results = [];
-        var r;
-
-        for (var i = 0; i < this.children.length; i += 1) {
-            if ((name && this.children[i].attr["name"] === name) ||
-                    (!name && this.children[i].attr["name"])) {
-                results.push(this.children[i]);
-            }
-            if (!!this.children[i].children && this.children[i].children.length > 0) {
-                if ((r = this.children[i].getElementsByName(name))) {
-                    results = results.concat(r);
-                }
-            }
-        }
-        return results;
+    removeChild: function(oldChild) {
+        return Node.prototype.removeChild.call(this, oldChild);
     },
     /**
-     * Returns if Element has an attribute or not
-     * @method Element.hasAttribute
-     * @param {string} name The attribute of name to test for
-     * @returns {boolean} If Element has that attribute or not
-     * @public
-     */
-    hasAttribute: function(name) {
-        if (this.attr[name]) {
-            return true;
-        } else {
-            return false;
-        }
-    },
-    /**
-     * Returns if Element has any attributes at all or not
-     * @method Element.hasAttributes
-     * @returns {boolean} If Element has attributes
+     * Returns whether this node (if it is an element) has any attributes. 
+     * @method Node.hasAttributes
+     * @returns {boolean} If Node has attributes
      * @public
      */
     hasAttributes: function() {
-        var size = 0;
-
-        for (var key in this.attr) {
-            if (this.attr.hasOwnProperty(key)) {
-                size += 1;
-                break;
-            }
-        }
-
-        if (size > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return Node.prototype.hasAttributes.call(this);
     },
     /**
-     * Returns the value of an attribute, if it exists
+     * Returns if Node has any childNodes
+     * @method Node.hasChildNodes
+     * @returns {boolean} If the Node has any childNodes
+     * @public
+     */
+    hasChildNodes: function() {
+        return Node.prototype.hasChildNodes.call(this);
+    },
+    /**
+     * Tests whether the DOM implementation implements a
+     *  specific feature and that feature is supported by this node. 
+     * @method Node.isSupported
+     * @param {string} feature The feature to test for
+     * @param {string} version The version of the feature
+     * @returns {boolean} Always returns true
+     * @public
+     */
+    isSupported: function(feature, version) {
+        return true;
+    },
+    /**
+     * Replaces the child node oldChild with newChild in the
+     *  list of children, and returns the oldChild node.
+     * @method Node.replaceChild
+     * @param {Node} newChild The node to insert
+     * @param {Node} oldChild The reference node
+     * @returns {Node} The node replaced
+     * @public
+     */
+    replaceChild: function(newChild, oldChild) {
+        return Node.prototype.replaceChild.call(this, newChild, oldChild);
+    },
+    /**
+     * Inserts the node newChild before the existing child node refChild.
+     * @method Node.insertBefore
+     * @param {Node} newChild The node to insert
+     * @param {Node} refChild The reference node
+     * @returns {Node} The node being inserted
+     * @public
+     */
+    insertBefore: function(newChild, refChild) {
+      return Node.prototype.insertBefore.call(this, newChild, refChild);  
+    },
+    /**
+     * Retrieves an attribute value by name.
      * @method Element.getAttribute
-     * @param {string} name The attribute name to test for
-     * @returns {*} The value, or null if it did not exist
+     * @param {string} name The name of the attribute to retrieve.
+     * @returns {string} The Attr value as a string or the empty string
      * @public
      */
     getAttribute: function(name) {
         if (this.attr[name]) {
-            return this.attr[name].value;
+            return "" + this.attr[name].value;
         } else {
-            return null;
-        }
-    },
-    /**
-     * Deletes an attribute, if it exists
-     * @method Element.removeAttribute
-     * @param {string} name The attribute of name to test for
-     * @public
-     */
-    removeAttribute: function(name) {
-        if (this.attr[name]) {
-            delete this.attr[name];
+            return "";
         }
     },
     /**
@@ -281,72 +222,15 @@ Element.prototype = {
         this.attr[name].value = value;
     },
     /**
-     * Creates a Element node of tag name and returns it
-     * @method Element.createElement
-     * @param {string} name The name of the element to create
-     * @returns {Element}  A new Element of name
+     * Deletes an attribute, if it exists
+     * @method Element.removeAttribute
+     * @param {string} name The attribute of name to test for
      * @public
      */
-    createElement: function(name) {
-        return new Element({name: name, ownerDocument: this, parentNode: null});
-    },
-    /**
-     * Returns if Element has any children
-     * @method Element.hasChildNodes
-     * @returns {boolean} If the Element has any children
-     * @public
-     */
-    hasChildNodes: function() {
-        if (this.children.length > 0) {
-            return true;
-        } else {
-            return false;
+    removeAttribute: function(name) {
+        if (this.attr[name]) {
+            delete this.attr[name];
         }
-    },
-    /**
-     * Adds a node to the list of children
-     * @method Element.appendChild
-     * @param {Element} node  The Element to add
-     * @public
-     */
-    appendChild: function(node) {
-        if (node instanceof Element) {
-            this.children.push(node);
-            this.firstChild = this.children[0];
-            this.lastChild = this.children[this.children.length];
-        }
-    },
-    /**
-     * The previous sibling of this node
-     * @method Element.previousSibling
-     * @returns {Element | null} If a sibling, that node, else null
-     * @public
-     */
-    previousSibling: function() {
-        if (this.parentNode !== null && this.parentNode.children.length > 1) {
-            for (var i = 0; i < this.parentNode.children.length; i += 1) {
-                if (this.parentNode.children[i] === this && i !== 0) {
-                    return this.parentNode.children[i - 1];
-                }
-            }
-        }
-        return null;
-    },
-    /**
-     * The next sibling of this node
-     * @method Element.nextSibling
-     * @returns {Element | null} If a sibling, that node, else null
-     * @public
-     */
-    nextSibling: function() {
-        if (this.parentNode !== null && this.parentNode.children.length > 1) {
-            for (var i = 0; i < this.parentNode.children.length; i += 1) {
-                if (this.parentNode.children[i] === this && i + 1 < this.parentNode.children.length) {
-                    return this.parentNode.children[i + 1];
-                }
-            }
-        }
-        return null;
     },
     /**
      * Returns a Attr node representing the named attribute
@@ -364,22 +248,6 @@ Element.prototype = {
         }
     },
     /**
-     * Creates an Attr node of given name and value
-     * @method Element.createAttribute
-     * @param {string}  name  The name of the attribute to return
-     * @param {*} value The value to set the named attribute to
-     * @returns {Attr | null} If a sibling, that node. Else, null
-     * @public
-     */
-    createAttribute: function(name, value) {
-        if (/^[a-zA-Z_:][a-zA-Z0-9\.\-_:]*$/.test(name)) {
-            return new Attr(name, value, this);
-        } else {
-            //Raised if the specified name contains an invalid character.
-            throw new Error("INVALID_CHARACTER_ERR");
-        }
-    },
-    /**
      * Sets the Attr node name and value as an attribute to the current node
      * @method Element.createAttribute
      * @param {Attr}  node  The name of the attribute to return
@@ -389,12 +257,12 @@ Element.prototype = {
         if (node instanceof Attr) {
             if (node.ownerElement !== this) {
                 //Raised if node is already an attribute of another Element object.
-                throw new Error("INUSE_ATTRIBUTE_ERR");
+                throw new DOMException("INUSE_ATTRIBUTE_ERR");
             } else {
                 if (node.ownerElement.ownerDocument !== this.ownerDocument) {
                     //Raised if node was created from a different document 
                     // than the one that created the element.
-                    throw new Error("WRONG_DOCUMENT_ERR");
+                    throw new DOMException("WRONG_DOCUMENT_ERR");
                 } else {
                     this.setAttribute(node.name, node.value);
                 }
@@ -415,94 +283,97 @@ Element.prototype = {
                 return temp;
             } else {
                 //Raised if node is not an attribute of the element.
-                throw new Error("NOT_FOUND_ERR");
+                throw new DOMException("NOT_FOUND_ERR");
             }
         }
     },
     /**
-     * Removes and returns an Attr node, if found
-     * @method Element.removeAttributeNode
-     * @param {Node}  node  The name of the attribute to return
+     * Retrieves an array of elements matching the name specified.
+     * Will return all element childNodes with "*"
+     * @method Element.getElementsByTagName
+     * @param {string} name The tag name to search for
+     * @returns {NodeList} An array containing any matches
      * @public
      */
-    insertBefore: function(node) {
-        node = null;
+    getElementsByTagName: function(name) {
+        var results = new NodeList(), r;
+
+        for (var i = 0; i < this.childNodes.length; i += 1) {
+            if (this.childNodes[i].nodeType === 1) {
+                if (this.childNodes[i].name === name || name === "*") {
+                    results.push(this.childNodes[i]);
+                }
+                if (!!this.childNodes[i].childNodes && this.childNodes[i].childNodes.length > 0) {
+                    if ((r = this.childNodes[i].getElementsByTagName(name))) {
+                        results = results.concat(r);
+                    }
+                }
+            }
+        }
+        return results;
+    },
+    /**
+     * Retrieves an attribute value by name.
+     * @method Element.getAttributeNS
+     * @param {string} namespaceURI The namespace URI of the attribute to retrieve.
+     * @param {string} localName The local name of the attribute to retrieve.
+     * @returns {string} The Attr value as a string or the empty string
+     * @public
+     */
+    getAttributeNS: function(namespaceURI, localName) {
+    },
+    setAttributeNS: function(namespaceURI, qualifiedName, value) {
+    },
+    removeAttributeNS: function(namespaceURI, localName) {
+    },
+    getAttributeNodeNS: function(namespaceURI, localName) {
+    },
+    setAttributeNodeNS: function(newAttr) {
+    },
+    getElementsByTagNameNS: function(namespaceURI, localName) {
+    },
+    /**
+     * Returns if Element has an attribute or not
+     * @method Element.hasAttribute
+     * @param {string} name The attribute of name to test for
+     * @returns {boolean} If Element has that attribute or not
+     * @public
+     */
+    hasAttribute: function(name) {
+    },
+    hasAttributeNS: function(namespaceURI, localName) {
     }
 };
 
 Element.prototype = Object.create(Element.prototype);
 Element.prototype.constructor = Element;
 
-/**
- * The nodeName of the Element
- *
- * @property nodeName
- * @type String
- * @default false
- */
-Object.defineProperty(Element.prototype, "nodeName", {
+Object.defineProperty(Element.prototype, 'ownerDocument', {
     get: function() {
-        return this.name;
-    },
-    set: function(name) {
-        this.name = name;
+        return Node.prototype._ownerDocument.call(this);
     }
 });
 
-/**
- * The nodeValue of the Element
- *
- * @property nodeValue
- * @type String
- * @default false
- */
-Object.defineProperty(Element.prototype, "nodeValue", {
+Object.defineProperty(Element.prototype, 'previousSibling', {
     get: function() {
-        return this.val;
-    },
-    set: function(value) {
-        this.val = value;
+        return Node.prototype._previousSibling.call(this);
     }
 });
 
-/**
- * The childNodes of the Element
- *
- * @property childNodes
- * @type Array
- * @default false
- */
-Object.defineProperty(Element.prototype, "childNodes", {
+Object.defineProperty(Element.prototype, 'nextSibling', {
     get: function() {
-        return this.children;
+        return Node.prototype._nextSibling.call(this);
     }
 });
 
-/**
- * The attributes of the Element
- *
- * @property attributes
- * @type Object
- * @default false
- */
-Object.defineProperty(Element.prototype, "attributes", {
+Object.defineProperty(Element.prototype, 'firstChild', {
     get: function() {
-        return this.attr;
+        return Node.prototype._firstChild.call(this);
     }
 });
 
-/**
- * The tagName of the Element
- *
- * @property tagName
- * @type String
- * @default ""
- */
-Object.defineProperty(Element.prototype, "tagName", {
+Object.defineProperty(Element.prototype, 'lastChild', {
     get: function() {
-        return this.name;
-    },
-    set: function(name) {
-        this.name = name;
+        return Node.prototype._lastChild.call(this);
     }
 });

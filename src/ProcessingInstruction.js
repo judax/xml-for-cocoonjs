@@ -1,47 +1,38 @@
 /**
  * @class ProcessingInstruction
- * @param {XmlElement} target The target XmlElement
+ * @param {XmlElement} target The target Node
  * @param {string}  data  The data
- * @param {XmlElement} parentNode The parent of this node
  */
-function ProcessingInstruction(target, data, parentNode) {
-    this.target = target;
-    this.data = data;
-    this.name = target;
+function ProcessingInstruction(target, data) {
+    Node.call(this);
+    this.nodeName = target;
+    this.nodeValue = data;
     this.attributes = null;
-    this.parentNode = parentNode;
-    if (this.parentNode.nodeType !== 1) {
-        this.parentElement = null;
-    } else {
-        this.parentElement = parentNode;
-    }
 }
 
 ProcessingInstruction.prototype = Object.create(ProcessingInstruction.prototype);
 ProcessingInstruction.prototype.constructor = ProcessingInstruction;
 
-/**
- * The nodeName of the ProcessingInstruction
- *
- * @property nodeName
- * @type String
- * @default false
- */
-Object.defineProperty(ProcessingInstruction.prototype, "nodeName", {
+Object.defineProperty(ProcessingInstruction.prototype, 'previousSibling', {
     get: function() {
-        return this.name;
+        return Node.prototype._previousSibling.call(this);
     }
 });
 
-/**
- * The nodeValue of the ProcessingInstruction
- *
- * @property nodeValue
- * @type String
- * @default false
- */
-Object.defineProperty(ProcessingInstruction.prototype, "nodeValue", {
+Object.defineProperty(ProcessingInstruction.prototype, 'nextSibling', {
     get: function() {
-        return this.data;
+        return Node.prototype._nextSibling.call(this);
+    }
+});
+
+Object.defineProperty(ProcessingInstruction.prototype, 'firstChild', {
+    get: function() {
+        return Node.prototype._firstChild.call(this);
+    }
+});
+
+Object.defineProperty(ProcessingInstruction.prototype, 'lastChild', {
+    get: function() {
+        return Node.prototype._lastChild.call(this);
     }
 });

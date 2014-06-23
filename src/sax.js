@@ -33,28 +33,17 @@ var SAX = (function() {
     ];
 
     sax.EVENTS = // for discoverability.
-            ["text",
-             "processinginstruction",
-             "sgmldeclaration",
-             "doctype",
-             "comment",
-             "attribute",
-             "opentag",
-             "closetag",
-             "opencdata",
-             "cdata",
-             "closecdata",
-             "error",
-             "end",
-             "ready",
-             "script",
-             "opennamespace",
-             "closenamespace"
+            ["text", "processinginstruction", "sgmldeclaration",
+             "doctype", "comment", "attribute", "opentag",
+             "closetag", "opencdata", "cdata", "closecdata",
+             "error", "end", "ready", "script",
+             "opennamespace", "closenamespace"
             ];
 
     function SAXParser(strict, opt) {
-        if (!(this instanceof SAXParser))
+        if (!(this instanceof SAXParser)) {
             return new SAXParser(strict, opt);
+        }
 
         var parser = this;
         clearBuffers(parser);
@@ -75,8 +64,9 @@ var SAX = (function() {
         // namespaces form a prototype chain.
         // it always points at the current tag,
         // which protos to its parent tag.
-        if (parser.opt.xmlns)
+        if (parser.opt.xmlns) {
             parser.ns = Object.create(rootNS);
+        }
 
         // mostly just for error reporting
         parser.trackPosition = parser.opt.position !== false;
@@ -86,7 +76,7 @@ var SAX = (function() {
         emit(parser, "onready");
     }
 
-    if (!Object.create)
+    if (!Object.create) {
         Object.create = function(o) {
             function f() {
                 this.__proto__ = o;
@@ -94,13 +84,15 @@ var SAX = (function() {
             f.prototype = o;
             return new f;
         };
+    }
 
-    if (!Object.getPrototypeOf)
+    if (!Object.getPrototypeOf) {
         Object.getPrototypeOf = function(o) {
             return o.__proto__;
         };
+    }
 
-    if (!Object.keys)
+    if (!Object.keys) {
         Object.keys = function(o) {
             var a = [];
             for (var i in o)
@@ -108,6 +100,7 @@ var SAX = (function() {
                     a.push(i);
             return a;
         };
+    }
 
     function checkBufferLength(parser) {
         var maxAllowed = Math.max(sax.MAX_BUFFER_LENGTH, 10)
@@ -197,8 +190,9 @@ var SAX = (function() {
     }
 
     function SAXStream(strict, opt) {
-        if (!(this instanceof SAXStream))
+        if (!(this instanceof SAXStream)) {
             return new SAXStream(strict, opt);
+        }
 
         Stream.apply(this);
 
@@ -261,8 +255,9 @@ var SAX = (function() {
     };
 
     SAXStream.prototype.end = function(chunk) {
-        if (chunk && chunk.length)
+        if (chunk && chunk.length) {
             this.write(chunk);
+        }
         this._parser.end();
         return true;
     };

@@ -1,28 +1,28 @@
 /**
  * @namespace DOMException
  * @class DOMException
- * @param {number}  errorCodeNumber The number corresponding to the error code string
+ * @param {string}  errorCode The error code to invoke
  */
-function DOMException(errorCodeNumber) {
+function DOMException(errorCode) {
 
     var exceptions = {
         //DOM Core Level 1 Errors
-        1: "INDEX_SIZE_ERR",
-        2: "DOMSTRING_SIZE_ERR",
-        3: "HIERARCHY_REQUEST_ERR",
-        4: "WRONG_DOCUMENT_ERR",
-        5: "INVALID_CHARACTER_ERR",
-        6: "NO_DATA_ALLOWED_ERR",
-        7: "NO_MODIFICATION_ALLOWED_ERR",
-        8: "NOT_FOUND_ERR",
-        9: "NOT_SUPPORTED_ERR",
-        10: "INUSE_ATTRIBUTE_ERR",
+        "INDEX_SIZE_ERR": 1,
+        "DOMSTRING_SIZE_ERR": 2,
+        "HIERARCHY_REQUEST_ERR": 3,
+        "WRONG_DOCUMENT_ERR": 4,
+        "INVALID_CHARACTER_ERR": 5,
+        "NO_DATA_ALLOWED_ERR": 6,
+        "NO_MODIFICATION_ALLOWED_ERR": 7,
+        "NOT_FOUND_ERR": 8,
+        "NOT_SUPPORTED_ERR": 9,
+        "INUSE_ATTRIBUTE_ERR": 10,
         //DOM Core Level 2 Errors
-        11: "INVALID_STATE_ERR",
-        12: "SYNTAX_ERR",
-        13: "INVALID_MODIFICATION_ERR",
-        14: "NAMESPACE_ERR",
-        15: "INVALID_ACCESS_ERR"
+        "INVALID_STATE_ERR": 11,
+        "SYNTAX_ERR": 12,
+        "INVALID_MODIFICATION_ERR": 13,
+        "NAMESPACE_ERR": 14,
+        "INVALID_ACCESS_ERR": 15
     };
 
     var messages = {
@@ -43,8 +43,8 @@ function DOMException(errorCodeNumber) {
         15: "A parameter or an operation is not supported by the underlying object."
     };
 
-    this.name = exceptions[errorCodeNumber];
-    this.message = messages[errorCodeNumber];
+    this.name = errorCode;
+    this.message = messages[exceptions[errorCode]];
 }
 
 DOMException.prototype = Object.create(Error.prototype);

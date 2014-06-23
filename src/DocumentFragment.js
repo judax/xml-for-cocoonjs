@@ -1,38 +1,43 @@
 /**
- * @class DocumentFragment
+ * @namespace documentFragment
+ * @class documentFragment
  */
-function DocumentFragment() {
-    this.name = "#document-fragment";
+function documentFragment() {
+    Node.call(this);
+    this.nodeName = "#document-fragment";
     this.nodeType = 11;
     this.attributes = null;
-    Document.call(this);
 }
 
-DocumentFragment.prototype = Object.create(DocumentFragment.prototype);
-DocumentFragment.prototype.constructor = Document;
+documentFragment.prototype = Object.create(Document.prototype);
+documentFragment.prototype.constructor = Document;
 
-/**
- * The nodeName of the DocumentFragment
- *
- * @property nodeName
- * @type String
- * @default false
- */
-Object.defineProperty(DocumentFragment.prototype, "nodeName", {
+Object.defineProperty(documentFragment.prototype, 'ownerDocument', {
     get: function() {
-        return this.name;
+        return Node.prototype._ownerDocument.call(this);
     }
 });
 
-/**
- * The nodeValue of the DocumentFragment
- *
- * @property nodeValue
- * @type String
- * @default false
- */
-Object.defineProperty(DocumentFragment.prototype, "nodeValue", {
+Object.defineProperty(documentFragment.prototype, 'previousSibling', {
     get: function() {
-        return null;
+        return Node.prototype._previousSibling.call(this);
+    }
+});
+
+Object.defineProperty(documentFragment.prototype, 'nextSibling', {
+    get: function() {
+        return Node.prototype._nextSibling.call(this);
+    }
+});
+
+Object.defineProperty(documentFragment.prototype, 'firstChild', {
+    get: function() {
+        return Node.prototype._firstChild.call(this);
+    }
+});
+
+Object.defineProperty(documentFragment.prototype, 'lastChild', {
+    get: function() {
+        return Node.prototype._lastChild.call(this);
     }
 });
