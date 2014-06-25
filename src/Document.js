@@ -97,7 +97,7 @@ Document.prototype = {
      * @private
      */
     _text: function(text) {
-        Element.prototype._text.apply(this.documentElement, text);
+        Element.prototype._text.apply(this.documentElement, arguments);
     },
     /**
      * Creates and pushes a new ProcessingInstruction node to the childNodes array
@@ -106,7 +106,7 @@ Document.prototype = {
      * @private
      */
     _processingInstruction: function(text) {
-        Element.prototype._processingInstruction.apply(this.documentElement, text);
+        Element.prototype._processingInstruction.apply(this.documentElement, arguments);
     },
     /**
      * Creates and pushes a new Comment node to the childNodes array
@@ -115,7 +115,7 @@ Document.prototype = {
      * @private
      */
     _comment: function(comment) {
-        Element.prototype._comment.apply(this.documentElement, comment);
+        Element.prototype._comment.apply(this.documentElement, arguments);
     },
     /**
      * Creates and pushes a new CDATA node to the childNodes array
@@ -124,7 +124,7 @@ Document.prototype = {
      * @private
      */
     _cdata: function(cdata) {
-        Element.prototype._cdata.apply(this.documentElement, cdata);
+        Element.prototype._cdata.apply(this.documentElement, arguments);
     },
     /**
      * Adds the node newChild to the end of the list of children of this node. 
@@ -135,7 +135,7 @@ Document.prototype = {
      * @public
      */
     appendChild: function(node) {
-        return Node.prototype.appendChild.call(this, node);
+        return Node.prototype.appendChild.call(this, arguments);
     },
     /**
      * Removes the child node indicated by oldChild from the list of children, and returns it. 
@@ -143,7 +143,7 @@ Document.prototype = {
      * @returns {Node} The node removed.
      */
     removeChild: function(oldChild) {
-        return Node.prototype.removeChild.call(this, oldChild);
+        return Node.prototype.removeChild.call(this, arguments);
     },
     /**
      * Returns whether this node (if it is an element) has any attributes. 
@@ -282,7 +282,7 @@ Document.prototype = {
 
         for (var i = 0; i < this.childNodes.length; i += 1) {
             if (this.childNodes[i].nodeType === 1) {
-                if (this.childNodes[i].name === name || name === "*") {
+                if (this.childNodes[i].nodeName === name || name === "*") {
                     results.push(this.childNodes[i]);
                 }
                 if (!!this.childNodes[i].childNodes && this.childNodes[i].childNodes.length > 0) {
