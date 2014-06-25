@@ -15,7 +15,7 @@ function NamedNodeMap()
      */
     this.nodes.getNamedItem = function(name) {
         var result = null;
-        for (var i = 0; i < this.length; i += 1) {
+        for (var i = 0; !result && i < this.length; i += 1) {
             if (this[i].nodeName === name) {
                 result = this[i];
             }
@@ -61,6 +61,7 @@ function NamedNodeMap()
                             return temp;
                         }
                     }
+                    this.push(node);
                 }
             }
         } else {
