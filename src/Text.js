@@ -2,12 +2,19 @@
  * @class Text
  * @param {string} string The content of the node
  */
-function Text(string) {
+function Text(string, parentNode) {
     Node.call(this);
     this.nodeValue = string;
+    this.data = string;
     this.nodeName = "#text";
     this.attributes = null;
     this.nodeType = 3;
+    this.parentNode = parentNode;
+    if (this.parentNode.nodeType !== 1) {
+        this.parentElement = null;
+    } else {
+        this.parentElement = parentNode;
+    }
 }
 
 Text.prototype = {
