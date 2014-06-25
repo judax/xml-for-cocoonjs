@@ -33,4 +33,11 @@
 });
 if (navigator.isCocoonJS) {
   window['DOMParser'] = domParser;
+  if (!document.implementation) {
+    document.implementation = {
+      createDocument : function() {
+        throw "Not implemented, just added for CocoonJS-Browser compatibility purposes."
+      }
+    }
+  }
 }
