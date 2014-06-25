@@ -90,7 +90,7 @@ Object.defineProperty(Comment.prototype, 'nextSibling', {
     }
 });
 
-OObject.defineProperty(Comment.prototype, 'firstChild', {
+Object.defineProperty(Comment.prototype, 'firstChild', {
     get: function() {
         return Node.prototype._firstChild.call(this);
     }
