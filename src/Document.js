@@ -278,21 +278,7 @@ Document.prototype = {
      * @public
      */
     getElementsByTagName: function(name) {
-        var results = [], r;
-
-        for (var i = 0; i < this.childNodes.length; i += 1) {
-            if (this.childNodes[i].nodeType === 1) {
-                if (this.childNodes[i].nodeName === name || name === "*") {
-                    results.push(this.childNodes[i]);
-                }
-                if (!!this.childNodes[i].childNodes && this.childNodes[i].childNodes.length > 0) {
-                    if ((r = this.childNodes[i].getElementsByTagName(name))) {
-                        results = results.concat(r);
-                    }
-                }
-            }
-        }
-        return results;
+        return Element.prototype.getElementsByTagName.apply(this, arguments);
     },
     /**
      * Import a node into a document
@@ -347,7 +333,29 @@ Document.prototype = {
      */
     getElementById: function(elementId) {
 
-    }
+    },
+
+    /**
+       * Retrieves an array matching the selector specified.
+       * @method Documnt.querySelectorAll
+       * @param {string} selector The selector to search for
+       * @returns {Array} An array with the matches found
+       * @public
+       */
+      querySelectorAll: function (selector) {
+        return Element.prototype.querySelectorAll.apply(this, arguments);
+      },
+      /**
+       * Retrieves the first element matching the selector specified.
+       * @method Document.querySelector
+       * @param {string} selector The selector to search for
+       * @returns {Element|null} If any matches were found, an element. If not, "null"
+       * @public
+       */
+      querySelector: function (selector) {
+        return Element.prototype.apply(this, arguments);
+      }
+
 };
 
 Document.prototype = Object.create(Document.prototype);
