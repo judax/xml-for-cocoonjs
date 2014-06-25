@@ -21,13 +21,14 @@ function Element(tag) {
         }
 
         if (tag.hasOwnProperty('attributes')) {
-            for (var prop in tag.attributes) {
-                if (tag.attributes.hasOwnProperty(prop)) {
-                    if (this.attributes === null) {
-                        this.attributes = new NamedNodeMap();
-                    }
-                    this.attributes.setNamedItem(prop);
-                }
+            this.attributes = new NamedNodeMap();
+            for (var attribute in tag.attributes) {
+                var node = new Node();
+                node.nodeName = tag.attributes[attribute].name;
+                node.nodeValue = tag.attributes[attribute].value;
+                node.nodeType = 2;
+                node.localName = tag.attributes[attribute].local;
+                this.attributes.setNamedItem(node);
             }
         }
 
@@ -77,8 +78,7 @@ Element.prototype = {
         if (text)
         {
             if (/[^\s]/.test(text)) {
-                var child = new Text(text);
-                child.parentNode = this;
+                var child = new Text(text, this);
                 this.childNodes.push(child);
             }
         }
@@ -205,8 +205,9 @@ Element.prototype = {
      * @public
      */
     getAttribute: function(name) {
-        if (this.attr[name]) {
-            return "" + this.attr[name].value;
+        var node = this.attributes.getNamedItem(name);
+        if (node) {
+            return "" + node.nodeValue;
         } else {
             return "";
         }
@@ -219,7 +220,16 @@ Element.prototype = {
      * @public
      */
     setAttribute: function(name, value) {
-        this.attr[name].value = value;
+        var node = this.attributes.getNamedItem(name);
+        if (node) {
+            node.nodeValue = value;
+        }
+        else {
+            node = new Node();
+            node.nodeName = name;
+            node.nodeValue = value;
+            this.attributes.setNamedItem(node);
+        }
     },
     /**
      * Deletes an attribute, if it exists
@@ -228,9 +238,7 @@ Element.prototype = {
      * @public
      */
     removeAttribute: function(name) {
-        if (this.attr[name]) {
-            delete this.attr[name];
-        }
+        this.attributes.removeNamedItem(name);
     },
     /**
      * Returns a Attr node representing the named attribute
@@ -300,7 +308,7 @@ Element.prototype = {
 
         for (var i = 0; i < this.childNodes.length; i += 1) {
             if (this.childNodes[i].nodeType === 1) {
-                if (this.childNodes[i].name === name || name === "*") {
+                if (this.childNodes[i].nodeName === name || name === "*") {
                     results.push(this.childNodes[i]);
                 }
                 if (!!this.childNodes[i].childNodes && this.childNodes[i].childNodes.length > 0) {
@@ -340,6 +348,7 @@ Element.prototype = {
      * @public
      */
     hasAttribute: function(name) {
+        return !!this.attributes.getNamedItem(name);
     },
     hasAttributeNS: function(namespaceURI, localName) {
     }
