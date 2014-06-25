@@ -351,7 +351,111 @@ Element.prototype = {
         return !!this.attributes.getNamedItem(name);
     },
     hasAttributeNS: function(namespaceURI, localName) {
-    }
+    },
+    /**
+       * Retrieves an array matching the selector specified.
+       * @method Element.querySelectorAll
+       * @param {string} selector The selector to search for
+       * @returns {Array} An array with the matches found
+       * @public
+       */
+      querySelectorAll: function (selector) {
+
+        var run = function (searchNode, selector) {
+
+          var checkNode = function (node, selectorPartInfos) {
+            var ok = true;
+            var selectorPartInfosLength = selectorPartInfos.length;
+            for (var selectorPartInfosIndex = 0; selectorPartInfosIndex < selectorPartInfosLength; selectorPartInfosIndex++) {
+              var selectorPartInfo = selectorPartInfos[selectorPartInfosIndex];
+              switch (selectorPartInfo.charAt(0)) {
+              case "[":
+                var attr = selectorPartInfo.substr(1, selectorPartInfo.length - 2).split("=");
+                var attrName = attr[0];
+                var attrValue = attr[1];
+                if (!node.getAttribute(attrName)) {
+                  ok = false;
+                } else if (attrValue) {
+                  attrValue = attrValue.replace(/^['"]|['"]$/g, "");
+                  if (node.getAttribute(attrName) != attrValue)
+                    ok = false;
+                }
+                break;
+              default:
+                if (node.nodeName.toLowerCase() != selectorPartInfo.toLowerCase())
+                  ok = false;
+                break;
+              }
+              if (!ok)
+                break;
+            }
+            return ok;
+          };
+
+          var selectorParts = selector.split(/[ >]+/),
+            selectorDividers = selector.match(/[ >]+/g) || [],
+            currentResultNodes = [searchNode];
+
+          var selectorPartLength = selectorParts.length;
+          while (selectorDividers.length < selectorPartLength) {
+            selectorDividers.unshift(" ");
+          }
+
+          for (var selectorPartIndex = 0; selectorPartIndex < selectorPartLength; selectorPartIndex++) {
+            var selectorPart = selectorParts[selectorPartIndex];
+            var selectorDivider = selectorDividers[selectorPartIndex];
+            if (selectorDivider)
+              selectorDivider = selectorDivider.replace(/^ +| +$/g, "");
+
+            var nodes = currentResultNodes.slice(0);
+            currentResultNodes = [];
+            var selectorPartInfos = selectorPart.match(/[#.[]?[a-z_-]+(?:='[^']+'|="[^"]+")?]?/gi);
+            var nodesLength = nodes.length;
+
+            if (selectorPartIndex === 0 && selectorPartLength > 1 && nodesLength === 1) {
+              var firstNode = nodes[0];
+              if (checkNode(firstNode, selectorPartInfos))
+                currentResultNodes.push(firstNode);
+            }
+
+            for (var nodeIndex = 0; nodeIndex < nodesLength; nodeIndex++) {
+              var node = nodes[nodeIndex];
+              var nodesToCheck = selectorDivider === ">" ? node.children : node.getElementsByTagName("*");
+              if (!nodesToCheck)
+                continue;
+              var nodesToCheckLength = nodesToCheck.length;
+              for (var nodesToCheckIndex = 0; nodesToCheckIndex < nodesToCheckLength; nodesToCheckIndex++) {
+                var nodeToCheck = nodesToCheck[nodesToCheckIndex];
+                if (checkNode(nodeToCheck, selectorPartInfos))
+                  currentResultNodes.push(nodeToCheck);
+              }
+            }
+          }
+          return currentResultNodes;
+        };
+
+        var selectors = selector.split(","),
+          selectorsLength = selectors.length,
+          foundNodes = [];
+
+        for (var i = 0; i < selectorsLength; i++) {
+          foundNodes = foundNodes.concat(run(this, selectors[i]));
+        }
+
+        return foundNodes;
+      },
+      /**
+       * Retrieves the first element matching the selector specified.
+       * @method Element.querySelector
+       * @param {string} selector The selector to search for
+       * @returns {Element|null} If any matches were found, an element. If not, "null"
+       * @public
+       */
+      querySelector: function (selector) {
+        var foundNodes = this.querySelectorAll(selector);
+        return foundNodes.length > 0 ? foundNodes[0] : null;
+      }
+
 };
 
 Element.prototype = Object.create(Element.prototype);
@@ -384,5 +488,23 @@ Object.defineProperty(Element.prototype, 'firstChild', {
 Object.defineProperty(Element.prototype, 'lastChild', {
     get: function() {
         return Node.prototype._lastChild.call(this);
+    }
+});
+
+Object.defineProperty(Element.prototype, 'textContent', {
+    get: function() {
+        function textContentRecursive(node) {
+            var text = "";
+            if (node.nodeType === 3) {
+                text += node.data;
+            }
+            else if (node.childNodes) {
+                for (var i = 0; i < node.childNodes.length; i++) {
+                    text += textContentRecursive(node.childNodes[i]);
+                }
+            }
+            return text;
+        }
+        return textContentRecursive(this);
     }
 });
